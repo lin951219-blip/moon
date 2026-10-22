@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小蜜蜂靈籤</title>
+    <style>
+        body {
+            /* 現代淡雅古風背景圖 */
+            background-image: url('https://unsplash.com'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #f7f5f0; 
+            color: #333;
+            font-family: "Helvetica Neue", Arial, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            text-align: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        
+        /* 極簡現代容器 */
+        .temple-container {
+            max-width: 480px;
+            margin: 40px auto;
+            background-color: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(184, 147, 44, 0.2); 
+        }
+
+        h1 { 
+            color: #9e2a2b; 
+            margin: 0 0 8px 0; 
+            font-size: 1.8em; 
+            letter-spacing: 4px;
+            font-weight: 500;
+        }
+        
+        .subtitle { 
+            color: #7f5539; 
+            margin: 0; 
+            font-size: 0.9em; 
+            letter-spacing: 3px;
+        }
+
+        .stage { 
+            margin: 40px 0; 
+            min-height: 120px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        
+        .status-text { 
+            font-size: 1em; 
+            color: #666; 
+            margin-bottom: 20px; 
+            line-height: 1.6;
+            letter-spacing: 1px;
+        }
+
+        /* 現代按鈕 */
+        button {
+            background-color: #9e2a2b; 
+            color: #fff;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1em;
+            border-radius: 6px; 
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin: 5px;
+            letter-spacing: 2px;
+        }
+        button:hover { 
+            background-color: #6e1a1b;
+            transform: translateY(-1px); 
+        }
+        button:disabled { 
+            background-color: #e0e0e0; 
+            color: #a1a1a1; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+
+        /* 文創風簡約籤詩卡片 */
+        .fortune-card {
+            background-color: #fff; 
+            color: #333;
+            padding: 30px 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.6s ease-out forwards;
+            overflow: hidden; /* 防止任何內容溢出 */
+        }
+
+        .fortune-title { 
+            color: #9e2a2b; 
+            font-size: 1.3em; 
+            font-weight: 600; 
+            margin-bottom: 25px; 
+            letter-spacing: 2px;
+        }
+
+        /* 💡 修正後的直書包覆層，確保字絕不凸出且完美置中 */
+        .fortune-poem-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .fortune-poem { 
+            font-size: 1.3em; 
+            font-weight: 500; 
+            letter-spacing: 6px; 
+            color: #222; 
+            writing-mode: vertical-rl; /* 直書設定 */
+            text-orientation: upright; 
+            line-height: 2.2; /* 控制每行之間的間距，讓它極度整齊 */
+            text-align: center;
+            display: inline-block; /* 讓寬度隨字數自動縮放 */
+            max-height: 220px; /* 限制最大高度 */
+        }
+
+        .fortune-analysis { 
+            border-top: 1px solid #f0f0f0; 
+            padding-top: 25px; 
+            color: #555; 
+            text-align: justify; 
+            line-height: 1.8; 
+            font-size: 0.95em;
+        }
+        
+        .fortune-analysis strong {
+            color: #9e2a2b;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="temple-container">
+    <h1>蜜蜂靈籤</h1>
+    <p class="subtitle">僅供參考</p>
+
+    <!-- 步驟區 -->
+    <div class="stage">
+        <p id="status" class="status-text">Orchideous...</p>
+        <div id="action-buttons">
+            <button id="btn-pray" onclick="startPray()">靜心參拜</button>
+            <button id="btn-draw" onclick="drawStick()" disabled>抽取靈籤</button>
+        </div>
+    </div>
+
+    <!-- 籤詩顯示結果 -->
+    <div id="fortune-card" class="fortune-card">
+        <div id="card-title" class="fortune-title"></div>
+        
+        <!-- 💡 增加了專門用來穩定直書排版的包覆層 -->
+        <div class="fortune-poem-container">
+            <div id="card-poem" class="fortune-poem"></div>
+        </div>
+        
+        <div id="card-analysis" class="fortune-analysis"></div>
+    </div>
+</div>
+
+<script>
+    // 2026 現代新中式月老靈籤資料庫
+    const fortuneDatabase = [
+        { title: "第一籤 【上上大吉】", poem: "關關雎鳩，在河之洲。窈窕淑女，君子好逑。", analysis: "<strong>【感情運勢】</strong>：正緣顯現，天作之合。<br><strong>【月老開示】</strong>：你心中所想之人或是即將出現的對象，與你非常契合。如果你目前有暗戀或曖昧對象，不要猶豫，大方展現誠意，成功機率極高！單身者近期將迎來非常優質的桃花，請多參與社交活動。" },
+        { title: "第五籤 【上吉】", poem: "有緣千里來相會，無緣對面不相逢。", analysis: "<strong>【感情運勢】</strong>：緣分天定，順其自然。<br><strong>【月老開示】</strong>：感情的事情急不得，是你的就絕對跑不掉。如果目前和某人距離遙遠（如網路戀情、遠距離），只要彼此真心相待，距離不是問題。相反地，若是強求無緣之人，就算天天見面也不會有結果。放下焦慮，月老自有安排。" },
+        { title: "第九籤 【上吉】", poem: "兩情若是久長時，又豈在朝朝暮暮。", analysis: "<strong>【感情運勢】</strong>：心意相通，細水長流。<br><strong>【月老開示】</strong>：目前的感情可能面臨遠距離、課業或工作忙碌而無法天天見面的情況。月老提醒你，短暫的寂寞與考驗反而能讓感情更堅定。信任是你們最強大的力量，不需聽信旁人閒言閒語，好好經營彼此的未來。" },
+        { title: "第十三籤 【中吉】", poem: "眾裡尋他千百度，驀然回首，那人卻在，燈火闌珊處。", analysis: "<strong>【感情運勢】</strong>：身邊有緣，切勿遠求。<br><strong>【月老開示】</strong>：你是不是一直覺得真愛很難找？月老笑你捨近求遠。其實最適合你、最在乎你的人，很可能早就已經出現在你的日常生活圈了！試著多留意身邊默默關心你的朋友，轉個身，幸福就在那裡。" },
+        { title: "第十八籤 【中平】", poem: "落花有意隨流水，流水無情戀落花。", analysis: "<strong>【感情運勢】</strong>：單相思苦，建議止損。<br><strong>【月老開示】</strong>：你目前可能正深陷於一段「你很喜歡對方，但對方只把你當朋友/路人」的單戀之中。月老勸你：強摘的瓜不甜，一廂情願的付出只會讓自己受傷。試著把生活重心放回自己身上，當你開始愛自己，真正懂得欣賞你的人才會出現。" },
+        { title: "第二十四籤 【中平】", poem: "各自簪花，各自雙飛。", analysis: "<strong>【感情運勢】</strong>：和平分開，各自安好。<br><strong>【月老開示】</strong>：如果是正處於爭吵不斷、名存實亡的感情中，或是正糾結於一段痛苦的虐戀，這張籤是月老給你的解脫指引。勉強綁在一起只是互相折磨，勇敢放手、彼此祝福，各自去尋找更適合的藍天，對雙方都是最好的救贖。" },
+        { title: "第三十籤 【下下籤】", poem: "始亂之，終棄之，固其理也。", analysis: "<strong>【感情運勢】</strong>：遇人不淑，切忌盲目。<br><strong>【月老開示】</strong>：這是一張嚴厲的警告籤。如果你目前的對象甜言蜜語卻不願意給予承諾，或者感情一開始就建立在欺騙、玩玩的基礎上，那麼最後受傷的必然是你。月老提醒你：立刻睜大眼睛看清現實，及時抽身，千萬不要沉迷於對方的甜言蜜語中！" },
+        { title: "第三十六籤 【大吉】", poem: "執子之手，與子偕老。", analysis: "<strong>【感情運勢】</strong>：修成正果，白頭偕老。<br><strong>【月老開示】</strong>：恭喜你！這是月老廟裡最完美的籤王之一。不論你現在是單身還是戀愛中，這張籤都預示著你即將迎來一段非常穩定、且能夠走向長久（甚至談婚論嫁）的成熟戀情。如果你們正在交往，代表對方是非常值得託付終身的伴侶，請好好珍惜。" },
+        { title: "第四十二籤 【下中籤】", poem: "不可與之言，而言，是言。不可與之言，而不言，是失言。", analysis: "<strong>【感情運勢】</strong>：溝通不良，誤會重重。<br><strong>【月老開示】</strong>：你最近在感情裡是不是常常覺得「不知道該不該把心裡話說出口」？月老提醒你，你們之間最大的問題是溝通。該說真話的時候你選擇生悶氣，不該碎碎念的時候你又講個不停。坐下來，心平氣和地坦白自己的感受，才不會把緣分給磨掉了。" },
+        { title: "第四十八籤 【中吉】", poem: "山窮水複疑無路，柳暗花明又一村。", analysis: "<strong>【感情運勢】</strong>：谷底翻身，重獲新生。<br><strong>【月老開示】</strong>：如果你剛剛經歷了分手、被拒絕，或是感情陷入極大的瓶頸，感到絕望，請不要放棄！這張籤代表你即將迎來轉機。舊的緣分不去，新的良緣不來。很快地，會有一個令你意想不到的嶄新契機出現，帶你走出情傷、重新擁抱幸福。" },
+        { title: "第五十四籤 【中平】", poem: "斯人也，而有斯疾也。", analysis: "<strong>【感情運勢】</strong>：心病心醫，放下執念。<br><strong>【月老開示】</strong>：月老看穿你這段時間在感情裡受盡委屈、心病難醫。不論是放不下前任、還是執著於一個不愛你的人，這都是你給自己套上的枷鎖。感情受傷是難免的，但一直沉溺在痛苦裡就是跟自己過不去。解鈴還須繫鈴人，勸你早日放下執念，放過自己。" },
+        { title: "第六十籤 【上吉】", poem: "願天下有情人終成眷屬。", analysis: "<strong>【感情運勢】</strong>：功德圓滿，幸福圓滿。<br><strong>【月老開示】</strong>：這是一張充滿祝福的籤。月老看見了你對感情的真誠與付出，你是一個溫暖、懂得愛人的人。只要保持現在善良、真摯的心態，不論目前感情狀況如何，最終你一定會獲得專屬你的圓滿大結局。月老祝福你！" }
+    ];
+
+    function startPray() {
+        const status = document.getElementById('status');
+        status.innerHTML = "靜心參拜中，月老正在聆聽你的心願...";
+        document.getElementById('btn-pray').disabled = true;
+        
+        setTimeout(() => {
+            status.innerHTML = "參拜完畢。請點擊『抽取靈籤』獲取情感指引。";
+            document.getElementById('btn-draw').disabled = false;
+        }, 1800);
+    }
+
+    function drawStick() {
+        const status = document.getElementById('status');
+        status.innerHTML = "正在尋求解答...";
+        document.getElementById('btn-draw').disabled = true;
+
+        setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * fortuneDatabase.length);
+            const currentFortune = fortuneDatabase[randomIndex];
+            
+            status.innerHTML = "月老賜籤：";
+            document.getElementById('card-title').innerText = currentFortune.title;
+            
+            // 💡 在 JS 端自動將標點符號改成換行標籤，配合新的 CSS 結構，字數再短也絕對工整不溢出
+            const formattedPoem = currentFortune.poem.replace(/[，。]/g, '<br>').replace(/<br><br>/g, '<br>');
+            document.getElementById('card-poem').innerHTML = formattedPoem;
+            
+            document.getElementById('card-analysis').innerHTML = currentFortune.analysis;
+            document.getElementById('fortune-card').style.display = 'block';
+        }, 1200);
+    }
+</script>
+
+</body>
+</html>
